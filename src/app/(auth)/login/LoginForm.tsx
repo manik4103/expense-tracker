@@ -1,5 +1,5 @@
 'use client'
-import { login } from '@/lib/actions/auth'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -8,17 +8,23 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function LoginForm() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  async function handleLogin(formData: FormData) {
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault()
     setError(null)
     setLoading(true)
-    const result = await login(formData)
+
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+
     setLoading(false)
-    if (result?.error) {
-      setError(result.error)
+    if (error) {
+      setError(error.message)
     } else {
       router.push('/dashboard')
       router.refresh()
@@ -32,17 +38,30 @@ export default function LoginForm() {
         <CardDescription>Sign in to your account</CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" placeholder="you@example.com" required />
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" name="password" type="password" required />
+            <Input
+              id="password"
+              type="password"
+              required
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+            />
           </div>
           {error && (
-            <p className="text-sm text-red-600 bg-red-50 p-2 rounded">{error}</p>
+            <p className="text-sm text-red-600 bg-red-50 p-3 rounded border border-red-200">{error}</p>
           )}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Signing in...' : 'Sign in'}
