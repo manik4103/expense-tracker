@@ -1,0 +1,6 @@
+To complete PWA setup, add:
+- public/icon-192.png (192x192 app icon)
+- public/icon-512.png (512x512 app icon)
+
+You can generate these from any square logo image using:
+https://realfavicongenerator.net/
