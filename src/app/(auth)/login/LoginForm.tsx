@@ -1,28 +1,28 @@
 'use client'
-import { useFormStatus } from 'react-dom'
 import { login } from '@/lib/actions/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useState } from 'react'
-
-function SubmitButton() {
-  const { pending } = useFormStatus()
-  return (
-    <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? 'Signing in...' : 'Sign in'}
-    </Button>
-  )
-}
+import { useRouter } from 'next/navigation'
 
 export default function LoginForm() {
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   async function handleLogin(formData: FormData) {
     setError(null)
+    setLoading(true)
     const result = await login(formData)
-    if (result?.error) setError(result.error)
+    setLoading(false)
+    if (result?.error) {
+      setError(result.error)
+    } else {
+      router.push('/dashboard')
+      router.refresh()
+    }
   }
 
   return (
@@ -44,7 +44,9 @@ export default function LoginForm() {
           {error && (
             <p className="text-sm text-red-600 bg-red-50 p-2 rounded">{error}</p>
           )}
-          <SubmitButton />
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign in'}
+          </Button>
         </form>
       </CardContent>
     </Card>
