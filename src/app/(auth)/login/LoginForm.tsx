@@ -5,14 +5,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -26,8 +24,10 @@ export default function LoginForm() {
     if (error) {
       setError(error.message)
     } else {
-      router.push('/dashboard')
-      router.refresh()
+      // Hard navigation ensures the browser commits the session cookie
+      // before the next request hits the middleware. router.push fires
+      // before @supabase/ssr finishes writing cookies, causing a redirect loop.
+      window.location.href = '/dashboard'
     }
   }
 
