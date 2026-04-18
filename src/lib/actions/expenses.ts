@@ -18,7 +18,8 @@ export async function createExpense(formData: ExpenseFormValues) {
     sub_category_id: rest.sub_category_id || null,
     business_unit_id: rest.business_unit_id || null,
     recipient_id: rest.recipient_id === 'other' ? null : (rest.recipient_id || null),
-    notes: rest.notes || (recipient_other ? `Paid to: ${recipient_other}` : null),
+    notes: [recipient_other ? `Paid to: ${recipient_other}` : null, rest.notes || null]
+      .filter(Boolean).join('\n') || null,
     entered_by: user.id,
   }
 
@@ -43,7 +44,8 @@ export async function updateExpense(id: string, formData: ExpenseFormValues) {
     sub_category_id: rest.sub_category_id || null,
     business_unit_id: rest.business_unit_id || null,
     recipient_id: rest.recipient_id === 'other' ? null : (rest.recipient_id || null),
-    notes: rest.notes || (recipient_other ? `Paid to: ${recipient_other}` : null),
+    notes: [recipient_other ? `Paid to: ${recipient_other}` : null, rest.notes || null]
+      .filter(Boolean).join('\n') || null,
   }
 
   const { error } = await supabase.from('expenses').update(updateData).eq('id', id)

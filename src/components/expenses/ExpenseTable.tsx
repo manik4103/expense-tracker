@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { deleteExpense } from '@/lib/actions/expenses'
 import { formatINR } from '@/lib/utils/currency'
 import { formatDate } from '@/lib/utils/date'
@@ -12,6 +13,8 @@ interface ExpenseTableProps {
 }
 
 export default function ExpenseTable({ expenses, isAdmin }: ExpenseTableProps) {
+  const router = useRouter()
+
   if (expenses.length === 0) {
     return (
       <div className="text-center py-12 text-gray-500">
@@ -23,6 +26,7 @@ export default function ExpenseTable({ expenses, isAdmin }: ExpenseTableProps) {
   const handleDelete = async (id: string) => {
     if (!window.confirm('Delete this expense? This cannot be undone.')) return
     await deleteExpense(id)
+    router.refresh()
   }
 
   return (
