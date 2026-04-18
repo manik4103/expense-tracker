@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,6 +10,7 @@ import type { BusinessUnit } from '@/types/app.types'
 interface Props { units: BusinessUnit[] }
 
 export default function BusinessUnitManager({ units }: Props) {
+  const router = useRouter()
   const [showAddForm, setShowAddForm] = useState(false)
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -26,6 +28,12 @@ export default function BusinessUnitManager({ units }: Props) {
     if (result.error) { setError(result.error); return }
     setShowAddForm(false)
     ;(e.target as HTMLFormElement).reset()
+    router.refresh()
+  }
+
+  async function handleToggleUnit(id: string, isActive: boolean) {
+    await updateBusinessUnit(id, { is_active: !isActive })
+    router.refresh()
   }
 
   return (
@@ -68,7 +76,7 @@ export default function BusinessUnitManager({ units }: Props) {
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <Button size="sm" variant="ghost" className="text-xs h-7"
-                    onClick={() => updateBusinessUnit(unit.id, { is_active: !unit.is_active })}>
+                    onClick={() => handleToggleUnit(unit.id, unit.is_active)}>
                     {unit.is_active ? 'Deactivate' : 'Activate'}
                   </Button>
                 </div>

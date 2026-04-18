@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,6 +22,7 @@ const TYPE_BADGE_VARIANTS: Record<RecipientType, string> = {
 interface Props { recipients: Recipient[] }
 
 export default function RecipientManager({ recipients }: Props) {
+  const router = useRouter()
   const [showAddForm, setShowAddForm] = useState(false)
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -42,6 +44,18 @@ export default function RecipientManager({ recipients }: Props) {
     setShowAddForm(false)
     setSelectedType('supplier')
     ;(e.target as HTMLFormElement).reset()
+    router.refresh()
+  }
+
+  async function handleToggleRecipient(id: string, isActive: boolean) {
+    await updateRecipient(id, { is_active: !isActive })
+    router.refresh()
+  }
+
+  async function handleDeleteRecipient(id: string) {
+    if (!window.confirm('Delete recipient?')) return
+    await deleteRecipient(id)
+    router.refresh()
   }
 
   return (
@@ -108,11 +122,11 @@ export default function RecipientManager({ recipients }: Props) {
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <Button size="sm" variant="ghost" className="text-xs h-7"
-                      onClick={() => updateRecipient(recipient.id, { is_active: !recipient.is_active })}>
+                      onClick={() => handleToggleRecipient(recipient.id, recipient.is_active)}>
                       {recipient.is_active ? 'Deactivate' : 'Activate'}
                     </Button>
                     <Button size="sm" variant="ghost" className="text-xs h-7 text-red-600"
-                      onClick={() => { if (window.confirm('Delete recipient?')) deleteRecipient(recipient.id) }}>
+                      onClick={() => handleDeleteRecipient(recipient.id)}>
                       Delete
                     </Button>
                   </div>

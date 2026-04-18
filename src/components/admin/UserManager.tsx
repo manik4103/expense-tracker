@@ -1,4 +1,5 @@
 'use client'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { updateUserRole, toggleUserActive } from '@/lib/actions/admin'
@@ -7,6 +8,18 @@ import type { Profile } from '@/types/app.types'
 interface Props { users: Profile[] }
 
 export default function UserManager({ users }: Props) {
+  const router = useRouter()
+
+  async function handleRoleChange(userId: string, currentRole: string) {
+    await updateUserRole(userId, currentRole === 'admin' ? 'staff' : 'admin')
+    router.refresh()
+  }
+
+  async function handleToggleActive(userId: string, isActive: boolean) {
+    await toggleUserActive(userId, !isActive)
+    router.refresh()
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -42,11 +55,11 @@ export default function UserManager({ users }: Props) {
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <Button size="sm" variant="ghost" className="text-xs h-7"
-                    onClick={() => updateUserRole(user.id, user.role === 'admin' ? 'staff' : 'admin')}>
+                    onClick={() => handleRoleChange(user.id, user.role)}>
                     {user.role === 'admin' ? 'Make Staff' : 'Make Admin'}
                   </Button>
                   <Button size="sm" variant="ghost" className="text-xs h-7"
-                    onClick={() => toggleUserActive(user.id, !user.is_active)}>
+                    onClick={() => handleToggleActive(user.id, user.is_active)}>
                     {user.is_active ? 'Deactivate' : 'Activate'}
                   </Button>
                 </div>

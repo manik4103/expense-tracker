@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,6 +15,7 @@ const PRESET_COLORS = ['#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#10B981', '#
 interface Props { categories: Category[]; subCategories: SubCategory[] }
 
 export default function CategoryManager({ categories, subCategories }: Props) {
+  const router = useRouter()
   const [showAddForm, setShowAddForm] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
@@ -35,6 +37,7 @@ export default function CategoryManager({ categories, subCategories }: Props) {
     setShowAddForm(false)
     setSelectedColor(PRESET_COLORS[0])
     ;(e.target as HTMLFormElement).reset()
+    router.refresh()
   }
 
   async function handleAddSubCategory(e: React.FormEvent<HTMLFormElement>, categoryId: string) {
@@ -44,6 +47,23 @@ export default function CategoryManager({ categories, subCategories }: Props) {
     if (!name.trim()) return
     await createSubCategory({ category_id: categoryId, name: name.trim() })
     ;(e.target as HTMLFormElement).reset()
+    router.refresh()
+  }
+
+  async function handleToggleCategory(id: string, isActive: boolean) {
+    await updateCategory(id, { is_active: !isActive })
+    router.refresh()
+  }
+
+  async function handleDeleteCategory(id: string) {
+    if (!window.confirm('Delete category?')) return
+    await deleteCategory(id)
+    router.refresh()
+  }
+
+  async function handleDeleteSubCategory(id: string) {
+    await deleteSubCategory(id)
+    router.refresh()
   }
 
   return (
@@ -103,11 +123,11 @@ export default function CategoryManager({ categories, subCategories }: Props) {
                       {isExpanded ? 'Collapse' : 'Sub-cats'}
                     </Button>
                     <Button size="sm" variant="ghost" className="text-xs h-7"
-                      onClick={() => updateCategory(cat.id, { is_active: !cat.is_active })}>
+                      onClick={() => handleToggleCategory(cat.id, cat.is_active)}>
                       {cat.is_active ? 'Deactivate' : 'Activate'}
                     </Button>
                     <Button size="sm" variant="ghost" className="text-xs h-7 text-red-600"
-                      onClick={() => { if (window.confirm('Delete category?')) deleteCategory(cat.id) }}>
+                      onClick={() => handleDeleteCategory(cat.id)}>
                       Delete
                     </Button>
                   </div>
@@ -119,7 +139,7 @@ export default function CategoryManager({ categories, subCategories }: Props) {
                       <div key={sub.id} className="flex items-center justify-between pl-4">
                         <span className="text-sm">{sub.name}</span>
                         <Button size="sm" variant="ghost" className="text-xs h-6 text-red-600"
-                          onClick={() => deleteSubCategory(sub.id)}>Remove</Button>
+                          onClick={() => handleDeleteSubCategory(sub.id)}>Remove</Button>
                       </div>
                     ))}
                     <form onSubmit={(e) => handleAddSubCategory(e, cat.id)} className="flex gap-2 pl-4">
