@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation'
 import { LayoutDashboard, Receipt, PlusCircle, Menu } from 'lucide-react'
 import { useState } from 'react'
 import type { Profile } from '@/types/app.types'
-import { logout } from '@/lib/actions/auth'
+import LogoutButton from './LogoutButton'
 
 interface Props { profile: Profile }
 
@@ -36,11 +36,7 @@ export default function MobileNav({ profile }: Props) {
               </>
             )}
             <p className="px-4 py-1 text-xs text-muted-foreground">{profile.full_name} · {profile.role}</p>
-            <form action={logout}>
-              <button type="submit" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-sm text-red-600 w-full">
-                Sign out
-              </button>
-            </form>
+            <LogoutButton variant="menu" />
           </div>
         </div>
       )}

@@ -1,8 +1,8 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Receipt, BarChart2, FileText, Settings, LogOut } from 'lucide-react'
-import { logout } from '@/lib/actions/auth'
+import { LayoutDashboard, Receipt, BarChart2, FileText, Settings } from 'lucide-react'
+import LogoutButton from './LogoutButton'
 import type { Profile } from '@/types/app.types'
 
 const navItems = [
@@ -67,13 +67,7 @@ export default function Sidebar({ profile }: Props) {
           <p className="text-sm font-medium truncate">{profile.full_name}</p>
           <p className="text-xs text-muted-foreground capitalize">{profile.role}</p>
         </div>
-        <form action={logout}>
-          <button type="submit"
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 w-full">
-            <LogOut size={18} />
-            Sign out
-          </button>
-        </form>
+        <LogoutButton />
       </div>
     </aside>
   )
